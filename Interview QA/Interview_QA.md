@@ -494,3 +494,34 @@ Can you describe your experience with implementing RESTful web services in Java,
 any challenges you faced and how you overcame them?
 
 
+I have implemented RESTful web services using Java and Spring Boot for enterprise applications involving customer, transaction, reporting, and integration workflows. Typically, I design APIs using a layered architecture: Controller, Service, Repository, and DTO layers. The controller handles HTTP requests, the service layer contains business logic, and the repository layer communicates with the database using JPA or JDBC.
+I have worked with common REST methods like GET, POST, PUT, PATCH, and DELETE, and I usually design APIs around resources such as /customers, /orders, /payments, or /reports. I also use proper HTTP status codes, request validation, global exception handling, and consistent response structures.
+One challenge I faced was handling multiple downstream service calls where one service was slow or unavailable. Initially, this caused delays and sometimes impacted the full response. To solve this, we implemented timeouts, retries, circuit breakers using Resilience4j, and fallback responses. For independent downstream calls, we used parallel execution with WebClient to reduce latency.
+Another challenge was maintaining consistent error handling across multiple APIs. We solved this by using @RestControllerAdvice and custom exceptions, so every API returned a clean and predictable error response.
+I also worked on performance improvements by optimizing SQL queries, adding caching, using pagination for large datasets, and reducing unnecessary payload fields in API responses.
+Overall, my approach is to build REST APIs that are secure, scalable, well-documented, and easy for frontend teams like Angular developers to consume.
+
+Short version:
+
+I have built RESTful APIs in Java using Spring Boot with proper controller, service, repository, and DTO layers. I handled challenges around downstream failures using Resilience4j, improved performance with caching and pagination, and standardized errors using global exception handling.
+
+
+
+==========================================================================================
+
+How do you ensure that your REST services are both performant and secure, and can you provide an example of a scenario where you had to make trade-offs between the two?
+
+
+I ensure REST services are performant and secure by designing them with both scalability and protection in mind from the beginning. On the performance side, I use pagination, caching, optimized SQL queries, connection pooling, async or parallel service calls where appropriate, and proper timeout settings. I also monitor P95/P99 latency, throughput, error rates, and database response time.
+
+On the security side, I use authentication and authorization through Spring Security and JWT, role-based access control, input validation, HTTPS, secure headers, rate limiting, audit logging, and protection against common risks like SQL injection and broken access control.
+
+One real trade-off I faced was around caching user-specific API responses. Caching improved performance because the same dashboard data was requested frequently, but we had to be careful not to expose sensitive or stale user data. Instead of caching everything globally, we cached only non-sensitive reference data and used short TTL caching for user-specific data. We also included user context in the cache key to avoid cross-user data leakage.
+
+Another trade-off was with JWT token validation. Validating tokens on every request adds some processing overhead, but skipping validation would create a security risk. So we kept validation on every request but optimized it by using efficient signing algorithms, proper token expiration, and stateless authentication.
+
+Overall, my approach is to never compromise critical security for performance. I optimize performance in a controlled way using caching, indexing, async calls, and payload reduction while keeping authentication, authorization, and audit controls intact.
+
+Short interview version:
+
+I improve REST performance using caching, pagination, optimized queries, async calls, connection pooling, and monitoring. I secure REST APIs using JWT, Spring Security, RBAC, input validation, HTTPS, rate limiting, and audit logging. A common trade-off is caching: caching improves performance but can expose stale or sensitive data, so I cache only safe data, use TTL, and include user context in cache keys.
