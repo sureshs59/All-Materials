@@ -803,3 +803,428 @@ Why Java instead of Node.js or Python for enterprise systems?
 Strong answer:
 
 Java provides stronger type safety, mature multithreading, JVM optimizations, excellent tooling, long-term backward compatibility, and a proven enterprise ecosystem, which makes it ideal for large-scale, mission-critical systems.
+
+
+==============================================================================
+Can you have a null as a key in a Map?
+#################################
+
+Yes — in Java, whether a Map allows null keys depends on the specific Map implementation.
+
+1. HashMap
+
+✅ Allows:
+
+one null key
+multiple null values
+
+Example:
+
+Map<String, String> map = new HashMap<>();
+
+map.put(null, "Admin");
+
+map.put("A", null);
+
+System.out.println(map);
+
+Output:
+
+{null=Admin, A=null}
+
+Why only one null key?
+
+Because keys must be unique.
+
+If another null key is added:
+
+map.put(null, "User");
+
+It replaces previous value.
+
+2. Hashtable
+
+❌ Does NOT allow:
+
+null key
+null value
+
+Example:
+
+Map<String, String> map = new Hashtable<>();
+
+map.put(null, "Admin");
+
+Output:
+
+NullPointerException
+3. ConcurrentHashMap
+
+❌ Does NOT allow:
+
+null keys
+null values
+
+Example:
+
+Map<String, String> map =
+        new ConcurrentHashMap<>();
+
+map.put(null, "Admin");
+
+Throws:
+
+NullPointerException
+
+Reason:
+
+In concurrent environments:
+
+null creates ambiguity
+
+Example:
+
+map.get(key) == null
+
+Could mean:
+
+key absent
+OR
+value is null
+
+This creates thread-safety issues.
+
+4. TreeMap
+
+✅ Allows:
+
+null values
+❌ Usually does NOT allow:
+null keys
+
+Because TreeMap sorts keys.
+
+Example:
+
+Map<String, String> map =
+        new TreeMap<>();
+
+map.put(null, "Admin");
+
+Throws:
+
+NullPointerException
+Summary Table
+Map Type	Null Key	Null Values
+HashMap	✅ One	✅ Multiple
+Hashtable	❌	❌
+ConcurrentHashMap	❌	❌
+TreeMap	❌	✅
+Interview Answer
+
+Yes, some Map implementations allow null keys. HashMap allows one null key and multiple null values, while Hashtable and ConcurrentHashMap do not allow null keys or null values. TreeMap generally does not allow null keys because it sorts keys internally.
+
+
+Here’s the interview format difference between HashMap, Hashtable, LinkedHashMap, and TreeMap.
+
+Quick comparison
+Map type				Order						Null key/value												Synchronization						Performance
+HashMap				No order guarantee		1 null key, multiple null values allowed			No										Fast, average O(1)
+
+Hashtable				No order guarantee		No null key, no null value							Yes										Slower than HashMap
+LinkedHashMap		Insertion order				1 null key, multiple null values allowed			No										Slightly slower than HashMap
+TreeMap				Sorted by key				Null key not allowed, null values allowed		No	                                    O(logn)
+
+Interview explanation
+1. HashMap
+Used when you need fast key-value lookup.
+
+It does not maintain any ordering.
+
+It allows one null key and multiple null values.
+
+Best choice for general-purpose map usage.
+
+2. Hashtable
+Legacy class from early Java versions.
+
+It is synchronized, so it is thread-safe by default.
+
+It does not allow null keys or null values.
+
+Usually avoided in modern code; ConcurrentHashMap is preferred for concurrency.
+
+3. LinkedHashMap
+Maintains insertion order.
+
+Useful when you want predictable iteration order.
+
+Slightly slower than HashMap because it maintains a linked list internally.
+
+Great for cache-like use cases.
+
+4. TreeMap
+Stores entries in sorted order of keys.
+
+Backed by a red-black tree.
+
+Operations are generally 
+O(logn) rather than O(1).
+
+Use it when you need sorted traversal, range queries, or nearest-key operations.
+
+One-line interview answer
+HashMap is the fastest general-purpose map, Hashtable is synchronized and legacy, LinkedHashMap preserves insertion order, and TreeMap keeps keys sorted.
+
+
+=======================================================================
+
+Can you explain how exception handling works in Core Java?
+
+#######################################
+Exception handling in Java is part of the Java runtime model that lets you handle abnormal situations gracefully instead of crashing the application.
+
+1. What is an Exception?
+
+An exception is an event that interrupts the normal flow of program execution.
+
+Real examples:
+
+divide by zero
+file not found
+database connection failure
+null object access
+invalid input
+
+Example:
+
+int result = 10 / 0;
+
+Output:
+
+java.lang.ArithmeticException: / by zero
+
+Without handling, JVM terminates that flow.
+
+Java exceptions come from:
+
+Object
+  ↓
+Throwable
+  ├── Error
+  └── Exception
+        ├── Checked Exception
+        └── Runtime Exception
+Error
+
+Serious JVM/system issues.
+
+Examples:
+
+OutOfMemoryError
+StackOverflowError
+
+Usually we don't handle these.
+
+Exception
+
+Application-level issues.
+
+Two types:
+
+Checked Exceptions
+
+Compiler checks them.
+
+Examples:
+
+IOException
+SQLException
+ClassNotFoundException
+
+Must handle or declare.
+
+Example:
+
+FileReader file = new FileReader("test.txt");
+
+Compiler forces handling.
+
+Unchecked Exceptions
+
+Happen at runtime.
+
+Examples:
+
+NullPointerException
+ArithmeticException
+ArrayIndexOutOfBoundsException
+
+Compiler does not force handling.
+
+3. try-catch
+
+Basic handling.
+
+public class TryCatchExample {
+    public static void main(String[] args) {
+
+        try {
+            int result = 10 / 0;
+
+        } catch (ArithmeticException ex) {
+            System.out.println("Cannot divide by zero");
+        }
+
+        System.out.println("Program continues...");
+    }
+}
+
+Output:
+
+Cannot divide by zero
+Program continues...
+4. Multiple catch blocks
+try {
+
+    String name = null;
+    System.out.println(name.length());
+
+} catch (ArithmeticException ex) {
+
+    System.out.println("Math error");
+
+} catch (NullPointerException ex) {
+
+    System.out.println("Null value found");
+
+} catch (Exception ex) {
+
+    System.out.println("Generic exception");
+}
+
+Java matches the first compatible catch.
+
+5. finally block
+
+Always executes (except JVM shutdown cases).
+
+Used for cleanup.
+
+try {
+
+    System.out.println("Business logic");
+
+} catch (Exception ex) {
+
+    System.out.println("Exception");
+
+} finally {
+
+    System.out.println("Closing resources");
+}
+
+Output:
+
+Business logic
+Closing resources
+
+Real usage:
+
+close file
+close DB connection
+release locks
+6. throw keyword
+
+Used to explicitly create an exception.
+
+public void withdraw(double amount) {
+
+    if (amount <= 0) {
+        throw new IllegalArgumentException(
+                "Amount must be positive"
+        );
+    }
+}
+
+Meaning:
+
+I am intentionally raising an exception.
+
+7. throws keyword
+
+Declares that a method may throw exceptions.
+
+public void readFile() throws IOException {
+
+    FileReader file =
+            new FileReader("data.txt");
+}
+
+Meaning:
+
+Caller must handle this.
+
+8. Custom Exception
+
+Very common in enterprise applications.
+
+Example:
+
+public class InsufficientBalanceException
+        extends RuntimeException {
+
+    public InsufficientBalanceException(
+            String message
+    ) {
+        super(message);
+    }
+}
+
+Usage:
+
+if(balance < withdrawAmount) {
+
+    throw new InsufficientBalanceException(
+            "Insufficient funds"
+    );
+}
+
+Real examples:
+
+UserNotFoundException
+OrderNotFoundException
+PaymentFailedException
+9. try-with-resources
+
+Best practice for files, streams, DB resources.
+
+import java.io.*;
+
+public class ResourceExample {
+
+    public static void main(String[] args)
+            throws IOException {
+
+        try (
+                BufferedReader reader =
+                        new BufferedReader(
+                                new FileReader("test.txt"))
+        ) {
+
+            System.out.println(
+                    reader.readLine()
+            );
+        }
+    }
+}
+
+Resources close automatically.
+
+
+Strong answer:
+
+In core Java, exceptions propagate through the call stack until handled. I use checked exceptions for recoverable external failures such as file or database operations, and runtime exceptions for business validation failures. In enterprise applications, I create custom exceptions for business scenarios, use try-with-resources for automatic cleanup, and in Spring Boot I centralize exception handling using @ControllerAdvice to return consistent API responses.
+
+
+
