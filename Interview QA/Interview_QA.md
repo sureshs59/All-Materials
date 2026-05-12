@@ -1478,3 +1478,83 @@ ON → join condition
 WHERE → filtering after join
 
 This is a very common senior SQL interview question.
+
+
+
+============================================
+
+"You've listed Angular Signals and the migration from BehaviorSubject at both KraftHeinz and CareFirst. Can you explain — in plain terms — what problem Signals solve, and walk me through how you actually executed that migration without breaking production?"
+Tip before you answer: I'm looking for three things —
+
+Conceptual clarity — can you explain Signals vs BehaviorSubject to a non-Angular person?
+Real execution detail — how did you actually do the migration step by step?
+Risk awareness — what could go wrong and how did you handle it?
+
+---------------------------------------------------------------------------------------
+
+BehaviorSubjectSignalChange detectionTriggers Zone.js — checks entire component treeFine-grained — only re-renders the exact expression that reads the signalSubscriptionManual subscribe/unsubscribe requiredNo subscription needed — auto-trackedDerived values.pipe(map(...)) chainscomputed(() => ...) — memoised automaticallyPerformanceFull tree check on every emitOnly affected components re-render
+The biggest problem you missed: BehaviorSubject + Default change detection = Angular checks every component on every event. Signals + OnPush = only the specific DOM expression that reads the signal updates. That is why you got a 50% rendering speed improvement — the answer was sitting right on your own resume and you didn't use it.
+
+2. You never answered the second half of the question
+The question had two parts:
+
+✅ What problem do Signals solve — partially answered
+❌ How did you actually execute the migration without breaking production — completely skipped
+
+This is critical. In a real interview, not answering part of the question signals you either didn't do the work or weren't listening. The migration story — using toSignal() as a bridge layer, migrating component by component, keeping BehaviorSubject in services while wrapping with toSignal() at the component boundary — that is your strongest technical story and you left it out entirely.
+
+3. Severe fluency breakdown mid-answer
+What you saidProblem"we have a lot of copper... components"Lost the word "components", recovered poorly"how... share the... it's between... in between them"Completely lost the sentence structure"this will be... this must be shared"Self-correcting mid-sentence, shows lack of rehearsal"it won't be updated in the... some other dependency components"Technically inaccurate AND grammatically broken"it will take in care... taken care by signals"Self-correction, hesitation
+This level of mid-sentence breakdown is the biggest risk to your interview performance. Technically you know the material — but the delivery makes it sound like you don't. Interviewers form impressions in the first 30 seconds of an answer.
+
+4. No metrics, no your-resume moments
+Your resume says: "50% application rendering speed improvement measured in production." That number should have appeared in this answer. You had a perfect opportunity:
+
+"At CareFirst we had 180+ components all on Default change detection. Every scroll event was triggering a full tree check across all of them. After migrating to Signals with OnPush, we measured a 50% rendering speed improvement in production and an 82% reduction in change detection cycles per second."
+
+That one sentence would have scored 9/10 on its own.
+
+💡 How you should have answered this question
+Part 1 — What problem Signals solve (30 seconds):
+
+"BehaviorSubject works fine for state sharing but it relies on Zone.js and Default change detection — which means Angular checks the entire component tree every time any event fires. With 180 components on the CareFirst portal, a single scroll was triggering hundreds of redundant checks per second. Signals are fine-grained — only the exact template expression that reads a changed signal re-evaluates. Nothing else touches it."
+
+Part 2 — How I executed the migration (60 seconds):
+
+"We couldn't rewrite everything at once — it's a live healthcare portal. So I used Angular's toSignal() function as a bridge. I kept the existing BehaviorSubject state services untouched and wrapped their observable output in toSignal() at the component boundary. That meant individual components could be migrated to OnPush + Signals one at a time, with zero changes to the state layer. Once all consumers of a given service were migrated, we then replaced the BehaviorSubject internally with a signal. Feature teams worked in parallel with zero merge conflicts. We also added a SonarQube rule that failed the build if anyone added a new subscribe() without takeUntilDestroyed() — so we couldn't accidentally introduce the old pattern back."
+
+
+
+=================================================================
+
+You've been a Technical Lead across multiple roles. Tell me about a time a project was going off the rails — deadline at risk, team struggling, production issue — and walk me through specifically what you did to turn it around."
+
+
+
+The Action section is always 60% of a great STAR answer. You spent one sentence on it — "I figured out the root cause and given solution." That tells the interviewer nothing.
+
+2. The most important part — what actually caused it and what you did — was completely missing
+A 600ms performance regression after an Angular upgrade is a real problem. The interviewer wants to know:
+
+Was it change detection running on too many components?
+Was it missing trackBy on ngFor loops?
+Was it synchronous HTTP calls blocking the main thread?
+Was it bundle size increase from the version upgrade?
+
+You know the answer — you lived it. But you never said it. "I figured out the root cause" is not an answer. The root cause IS the answer.
+
+3. Contradictions and confusion in the timeline
+You said "after pushing all changes to production, it went well" — then said the problem was caused by "migrating from Angular 8 to 12." These two statements conflict. Did it work first and then break? Or did the migration itself cause it? The interviewer is confused about the sequence.
+
+"The fix reduced response time from 600ms to under 80ms. We shipped on time and the client never knew there had been an issue."
+
+How you should have answered this
+
+Situation: "About two years ago at CareFirst, we migrated from Angular 8 to Angular 12 and pushed to production. Within 48 hours we started seeing API response times spike to 600ms on the member dashboard — well above our 200ms SLA. Client escalation was coming if we didn't resolve it within 24 hours."
+
+Task: "As technical lead, it was my call to diagnose the root cause, coordinate the fix, and make the go/no-go decision on a hotfix deployment — without taking down production."
+
+Action: "I pulled the Chrome DevTools performance flame chart and immediately saw that change detection was running on the full component tree on every scroll event — 180+ components all re-checking simultaneously. The Angular 12 upgrade had changed some default behaviors and our components were all on Default change detection with no OnPush anywhere. I split the team into two pairs — one pair to audit and switch the highest-traffic components to OnPush strategy, one pair to add trackBy to all ngFor loops and remove template method calls replacing them with pure pipes. I ran a war room every 3 hours to track progress and we deployed the fix in 18 hours via a hotfix branch through PCF pipeline."
+
+Result: "Response time dropped from 600ms to under 80ms. Change detection cycles reduced by 82%. We delivered within the 24-hour window, the client SLA was maintained, and that incident became the catalyst for our team-wide Angular performance guidelines that prevented recurrence."
+
