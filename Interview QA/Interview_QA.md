@@ -115,16 +115,17 @@ SOAP message example:
 </soap:Envelope>
 
 
-REST										SOAP
-Architectural style						Protocol
-Lightweight								Heavy
-Mostly JSON								XML only
-Faster										Slower
-Easy to consume						More complex
-Flexible										Strict contract
-Uses HTTP mainly						HTTP, SMTP, TCP
-No built-in security						WS-Security support
-Best for microservices				Best for enterprise legacy systems
+| REST | SOAP |
+|---|---|
+| Architectural style | Protocol |
+| Lightweight | Heavy |
+| Mostly JSON | XML only |
+| Faster | Slower |
+| Easy to consume | More complex |
+| Flexible | Strict contract |
+| Uses HTTP mainly | HTTP, SMTP, TCP |
+| No built-in security | WS-Security support |
+| Best for microservices | Best for enterprise legacy systems |
 
 
 When Would You Use REST?
