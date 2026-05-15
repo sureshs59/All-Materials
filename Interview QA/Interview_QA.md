@@ -582,18 +582,19 @@ Map<String, String> map =
 map.put(null, "Admin");
 
 Throws:
-
 NullPointerException
-Summary Table
-Map Type	Null Key	Null Values
-HashMap	✅ One	✅ Multiple
-Hashtable	❌	❌
-ConcurrentHashMap	❌	❌
-TreeMap	❌	✅
+
+### Summary Table
+| Map Type | Null Key | Null Values |
+|---|---|---|
+| `HashMap` | ✅ One | ✅ Multiple |
+| `Hashtable` | ❌ | ❌ |
+| `ConcurrentHashMap` | ❌ | ❌ |
+| `TreeMap` | ❌ | ✅ |
+
 Interview Answer
 
 Yes, some Map implementations allow null keys. HashMap allows one null key and multiple null values, while Hashtable and ConcurrentHashMap do not allow null keys or null values. TreeMap generally does not allow null keys because it sorts keys internally.
-
 
 Here’s the interview format difference between HashMap, Hashtable, LinkedHashMap, and TreeMap.
 
@@ -646,12 +647,51 @@ Use it when you need sorted traversal, range queries, or nearest-key operations.
 One-line interview answer
 HashMap is the fastest general-purpose map, Hashtable is synchronized and legacy, LinkedHashMap preserves insertion order, and TreeMap keeps keys sorted.
 
+### Key Rules to Remember
+
+- **HashMap** — the only common Map that allows a null key (exactly one)
+- **Hashtable** — throws `NullPointerException` for both null keys and null values
+- **ConcurrentHashMap** — throws `NullPointerException` for null keys or values;
+  ambiguity between "key absent" and "key maps to null" is the design reason
+- **TreeMap** — null keys throw `NullPointerException` because sorting requires
+  calling `compareTo()` on the key, which fails on null
+
+### Interview Answer
+
+> "HashMap allows one null key and multiple null values because it uses
+> `hashCode()` with a special null check that maps null to bucket 0.
+> ConcurrentHashMap and Hashtable prohibit null entirely — in a concurrent
+> context you cannot distinguish between a key being absent and a key
+> explicitly mapped to null, so the designers banned null to avoid ambiguity.
+> TreeMap allows null values but not null keys because the sorting mechanism
+> calls `compareTo()` on keys, which would throw a NullPointerException."
+
+### Code Example
+
+```java
+// HashMap -- null key allowed
+Map hashMap = new HashMap<>();
+hashMap.put(null, "value");         // OK
+hashMap.put("key", null);           // OK
+
+// ConcurrentHashMap -- null throws immediately
+Map concurrentMap = new ConcurrentHashMap<>();
+concurrentMap.put(null, "value");   // NullPointerException
+concurrentMap.put("key", null);     // NullPointerException
+
+// TreeMap -- null value OK, null key throws
+Map treeMap = new TreeMap<>();
+treeMap.put("key", null);           // OK
+treeMap.put(null, "value");         // NullPointerException
+```
+
 
 =======================================================================
 
 Can you explain how exception handling works in Core Java?
 
 #######################################
+
 Exception handling in Java is part of the Java runtime model that lets you handle abnormal situations gracefully instead of crashing the application.
 
 1. What is an Exception?
@@ -1001,7 +1041,7 @@ I approach Java performance debugging by first identifying the bottleneck using 
 ######################################################################################
 
 
-Can you describe your experience with implementing RESTful web services in Java, including
+Can you  including
 any challenges you faced and how you overcame them?
 
 
