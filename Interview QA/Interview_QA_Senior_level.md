@@ -28,3 +28,48 @@ The pipeline had five stages in Jenkins. First, Maven pulled the code from Git a
 In Kubernetes I configured liveness and readiness probes on the Spring Actuator health endpoint. The readiness probe was critical — it prevented traffic routing to a pod until the application had fully started and the database connection pool was warm. Before this we had intermittent 502 errors during deployments.
 I chose rolling update over blue/green — maxSurge one, maxUnavailable zero. Blue/green doubles infrastructure cost during the deployment window. Rolling update with readiness probes gave us the same safety at half the cost.
 The outcome: deployment lead time dropped from 3 days to 4 hours. We moved from weekly to daily releases. Zero downtime across all production deployments after the migration."
+
+
+explain these concepts:    Kubernetes Features We Implemented
+✅ rolling deployments
+✅ auto scaling
+✅ self healing
+✅ blue-green deployments
+✅ zero downtime releases
+✅ readiness/liveness probes
+
+
+Let me walk you through these Kubernetes features step-by-step, building from the fundamentals to how they work together.
+
+Rolling Deployments
+This is Kubernetes' default deployment strategy that updates your application gradually without downtime. Instead of replacing all pods at once, Kubernetes incrementally replaces old pods with new ones—updating a few at a time. For example, if you have 10 pods running version 1, Kubernetes might replace 2 pods with version 2, monitor their health, then continue until all are updated. This ensures users always have access to a working version during updates.
+
+Auto Scaling
+Kubernetes provides three autoscaling mechanisms:
+
+Horizontal Pod Autoscaler (HPA): Automatically adds or removes pod replicas based on CPU, memory, or custom metrics
+
+Vertical Pod Autoscaler (VPA): Adjusts CPU and memory limits for existing pods
+
+Cluster Autoscaler: Adds or removes worker nodes based on resource demands
+
+These work together to optimize resource usage and costs while maintaining performance.
+
+Self-Healing
+Kubernetes continuously monitors your cluster and automatically recovers from failures. When a container crashes, Kubernetes restarts it based on the restart policy. If a pod fails health checks, controllers (like Deployments) automatically replace it to maintain your desired replica count. The system also removes unhealthy pods from service endpoints so traffic only goes to healthy instances.
+
+Blue-Green Deployments
+This strategy maintains two identical production environments: "blue" (current version) and "green" (new version). You deploy the new version to the green environment, test it thoroughly, then switch all traffic from blue to green instantly. In Kubernetes, you use services and ingress controllers to route traffic between environments. If issues arise, you can instantly rollback by switching traffic back to blue.
+
+Zero Downtime Releases
+This combines rolling deployments with readiness probes. Kubernetes ensures new pods are fully ready before routing traffic to them and keeps old pods running until replacements are healthy. This guarantees continuous service availability during updates.
+
+Readiness and Liveness Probes
+These are health checks that enable self-healing:
+
+Liveness Probe: Checks if a container is running properly. If it fails, Kubernetes restarts the container
+
+Readiness Probe: Checks if a container can serve requests. If it fails, Kubernetes removes the pod's IP from service endpoints (stops sending traffic) but doesn't restart it
+
+Each probe can use HTTP requests, TCP connections, or command execution to check health.
+
