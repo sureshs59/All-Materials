@@ -73,3 +73,306 @@ Readiness Probe: Checks if a container can serve requests. If it fails, Kubernet
 
 Each probe can use HTTP requests, TCP connections, or command execution to check health.
 
+
+
+######################################################################################################
+
+What REST API versioning and integration strategies have you implemented in your projects?
+
+=====================================================================================
+
+Common REST API Versioning Strategies
+Let me outline the main approaches so you can identify which ones align with your experience:
+
+URI Path Versioning
+/api/v1/users or /api/v2/users - version in the URL path
+
+Strategy 1 — URI Path Versioning (Most Common)
+
+"This was my default choice for public-facing APIs. Every enterprise
+client could see exactly which version they were calling. Simple,
+explicit, and cacheable."
+
+/api/v1/payments
+/api/v2/payments
+
+Query Parameter Versioning
+/api/users?version=1 - version as a query string
+
+Strategy 2 — Request Parameter Versioning
+
+"Used specifically for our public developer API where we wanted
+the simplest possible experience for third-party integrators."
+/**
+     * GET /api/reports?version=1
+     * GET /api/reports?version=2
+     * GET /api/reports       ← defaults to latest
+     */
+	 
+	 
+
+Header Versioning
+Custom header like X-API-Version: 1 or Accept: application/vnd.api.v1+json
+
+Strategy 3 — Header Versioning
+
+"Used this for internal microservice communication where URI
+cleanliness mattered and we didn't want version numbers polluting
+URLs in logs and dashboards."
+
+ /**
+     * Same URL — different behaviour based on Accept header.
+     *
+     * V1: GET /api/users/1
+     *     Accept: application/vnd.company.user.v1+json
+     *
+     * V2: GET /api/users/1
+     *     Accept: application/vnd.company.user.v2+json
+     */
+
+Content Negotiation
+Using standard Accept header with custom media types
+
+===============================================================================================
+
+Explain your hands-on experience with Core Java concepts such as Multithreading, Collections, Concurrency, and JVM tuning.
+
+===============================================================================================
+Multithreading Experience
+
+I worked extensively with multithreading to improve:
+
+✅ API throughput
+✅ parallel processing
+✅ background jobs
+✅ asynchronous workflows
+✅ system scalability
+
+CompletableFuture
+ExecutorService
+WebClient reactive programming
+
+
+Senior-Level Closing Answer
+
+Overall, I have strong hands-on experience with Core Java concepts including multithreading, concurrency, collections optimization, JVM tuning, and performance troubleshooting. I’ve implemented asynchronous and reactive processing using CompletableFuture, ExecutorService, and WebClient, optimized concurrent applications using thread-safe collections and concurrency utilities, and performed JVM tuning and memory analysis using tools like VisualVM, JProfiler, MAT, jstack, and GC logs to improve scalability and production stability in enterprise microservices environments.
+JVM Tuning Experience
+
+I have hands-on experience analyzing and tuning JVM performance for production applications.
+
+Areas I Worked On
+
+✅ heap memory tuning
+✅ garbage collection optimization
+✅ thread analysis
+✅ memory leak detection
+✅ CPU profiling
+✅ GC pause reduction
+
+JVM Tools Used
+Tool												Purpose
+VisualVM								Heap/thread analysis
+JProfiler								CPU & memory profiling
+Eclipse MAT							Memory leak analysis
+jstack									Thread dumps
+jmap										Heap dumps
+GC logs									GC tuning
+
+
+Performance Optimization Strategies
+
+We improved performance using:
+
+✅ connection pooling
+✅ caching (Redis)
+✅ async processing
+✅ non-blocking APIs
+✅ query optimization
+✅ batching
+
+
+####################################################################################
+
+Describe your experience with Oracle/SQL, Hibernate/JPA, and database optimization techniques.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Oracle / SQL Experience
+
+I worked extensively on:
+
+✅ complex SQL queries
+✅ PL/SQL procedures
+✅ functions
+✅ views
+✅ triggers
+✅ schema design
+✅ query optimization
+✅ production troubleshooting
+
+
+SQL Expertise
+
+I frequently developed:
+
+✅ joins
+✅ subqueries
+✅ CTEs
+✅ window functions
+✅ aggregate queries
+✅ pagination queries
+✅ batch updates
+
+
+Hibernate / JPA Experience
+
+I used:
+
+Hibernate ORM
+Spring Data JPA
+JPQL
+Criteria API
+
+for database abstraction and object-relational mapping.
+-------------------------------
+
+JPA Repository Example
+@Repository
+public interface OrderRepository
+      extends JpaRepository<Order, Long> {
+}
+
+@Entity
+@Table(name="orders")
+public class Order {
+
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private Long id;
+
+   private String orderName;
+}
+
+JPQL Experience
+
+Used JPQL for:
+
+✅ dynamic queries
+✅ object-oriented querying
+✅ reusable repository logic
+
+
+@Query("SELECT o FROM Order o WHERE o.status='ACTIVE'")
+List<Order> findActiveOrders();
+
+
+Query Optimization
+
+We optimized slow queries using:
+
+✅ execution plans
+✅ indexing
+✅ query refactoring
+✅ avoiding full table scans
+
+
+One report query was taking:
+
+20+ seconds
+
+We analyzed using:
+
+EXPLAIN ANALYZE
+
+and identified:
+
+missing indexes
+unnecessary joins
+
+After optimization:
+
+response reduced to under 2 seconds
+
+
+
+Indexing Strategy
+
+Implemented:
+
+✅ composite indexes
+✅ clustered indexes
+✅ unique indexes
+
+
+Lazy vs Eager Loading
+
+One major Hibernate challenge was:
+
+N+1 query problem
+Problem
+
+Fetching parent entity triggered multiple child queries.
+
+Solution
+
+We optimized using:
+
+✅ fetch joins
+✅ EntityGraph
+✅ lazy loading tuning
+
+Example
+@OneToMany(fetch = FetchType.LAZY)
+5️⃣ Batch Processing
+
+
+Connection Pooling
+
+We used:
+
+HikariCP
+datasource tuning
+
+to improve DB connectivity performance.
+
+
+
+Hibernate Performance Tuning
+
+We optimized Hibernate by:
+
+✅ enabling second-level cache
+✅ reducing unnecessary entity loading
+✅ DTO projections
+✅ query tuning
+
+
+Senior-Level Closing Answer
+
+Overall, I have extensive experience working with Oracle SQL, PostgreSQL, Hibernate, and JPA in enterprise Java applications. I’ve designed and optimized complex SQL queries, implemented ORM solutions using Hibernate and Spring Data JPA, handled transactional processing, and performed database optimization techniques such as indexing, query tuning, pagination, lazy loading optimization, batching, and connection pooling to improve scalability and application performance in high-volume production systems.
+
+
+=========================================================================
+
+What monitoring, logging, and observability tools have you used for troubleshooting production issues?
+
+=====================================================================
+
+Overall, I have strong experience implementing observability and troubleshooting solutions using Prometheus, Grafana, ELK Stack, Splunk, Zipkin, OpenTelemetry, CloudWatch, Dynatrace, and AppDynamics in distributed microservices environments. I’ve used these tools extensively for monitoring JVM health, Kubernetes workloads, API latency, distributed tracing, centralized logging, and production incident analysis to quickly identify bottlenecks, optimize performance, and improve overall system reliability and scalability.
+
+
+
+
+===================================================================
+Explain your experience with front-end technologies such as Angular or React and how you integrate them with Spring Boot APIs.
+
+
+Overall, I have strong experience developing enterprise front-end applications using Angular and integrating them with Spring Boot microservices through secure REST APIs. I’ve implemented JWT/OAuth2 authentication, reactive programming with RxJS, modern state management approaches including NgRx and Signals, and various performance optimization techniques such as lazy loading, OnPush strategy, caching, and virtual scrolling. I’ve also worked on containerized deployments, CI/CD pipelines, and cloud-native integrations for scalable enterprise applications.
+
+
+
+How are you using AI-driven development tools such as Amazon Q or other AI coding assistants in your current work?
+
+Senior-Level Closing Answer
+
+Overall, I use AI-driven development tools like Amazon Q, GitHub Copilot, and other coding assistants primarily to improve engineering productivity, accelerate development, automate repetitive coding tasks, assist with troubleshooting, and speed up cloud and DevOps workflows. I’ve used them extensively across Spring Boot microservices, Angular applications, Kubernetes deployments, SQL optimization, and AWS environments. However, I always validate AI-generated solutions carefully, especially for security, scalability, performance, and architectural decisions in enterprise production systems.
