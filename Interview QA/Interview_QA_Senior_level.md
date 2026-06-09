@@ -376,3 +376,22 @@ How are you using AI-driven development tools such as Amazon Q or other AI codin
 Senior-Level Closing Answer
 
 Overall, I use AI-driven development tools like Amazon Q, GitHub Copilot, and other coding assistants primarily to improve engineering productivity, accelerate development, automate repetitive coding tasks, assist with troubleshooting, and speed up cloud and DevOps workflows. I’ve used them extensively across Spring Boot microservices, Angular applications, Kubernetes deployments, SQL optimization, and AWS environments. However, I always validate AI-generated solutions carefully, especially for security, scalability, performance, and architectural decisions in enterprise production systems.
+
+
+
+"In production at CareFirst, we retrieved 1000 employee records from Oracle and stored them in an ArrayList. We then needed to search by employee ID and occasionally add/remove records.
+Problem: ArrayList search by ID required O(n) iteration. With 1000 records, this was slow.
+Solution: We switched to HashMap with employee ID as the key. This gave us O(1) lookup time.
+Code:
+java// Before: O(n) search in ArrayList
+List employees = getEmployeesFromDB(); // 1000 records
+EmployeeDTO found = employees.stream()
+    .filter(e -> e.getEmployeeId().equals("EMP123"))
+    .findFirst()
+    .orElse(null);
+
+// After: O(1) search in HashMap
+Map employeeMap = employees.stream()
+    .collect(Collectors.toMap(EmployeeDTO::getEmployeeId, e -> e));
+EmployeeDTO found = employeeMap.get("EMP123"); // Instant!
+Result: Search time improved from O(n) to O(1). With 1000 records, we went from ~500ms to <1ms."**
