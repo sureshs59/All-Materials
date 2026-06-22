@@ -75,6 +75,31 @@ Each probe can use HTTP requests, TCP connections, or command execution to check
 
 
 
+===================================================
+
+"In production we had a pod going into CrashLoopBackOff. I ran oc describe pod  and saw in the status it was OOMKilled — the container exceeded its memory limit. To confirm whether it was a tuning problem or a real leak, I checked memory over time in Azure Monitor: it climbed steadily and never released, which pointed to a leak in the app, not just a tight limit.
+As an immediate mitigation I raised the memory limit from 256Mi to 1Gi so production stabilized. But because the graph showed a leak, I didn't stop there — I profiled the service and found [a connection pool that wasn't being released / an unbounded cache], and fixed that in code. I verified by watching the memory curve stay flat under load for 24 hours before closing the incident."
+
+
+
+
+Model answer — profiling a connection pool leak
+
+"I'd start by capturing a heap dump from the running pod with jmap -dump:live,format=b,file=/tmp/heap.bin , then pull it off the pod with oc cp and open it in Eclipse MAT.
+In MAT I'd run the Leak Suspects report and look at the dominator tree — the objects retaining the most memory. For a pool leak, the tell-tale sign is a huge, growing count of one object type: thousands of Connection (or HikariCP PoolEntry) objects held live, when the pool's max size is only, say, 20.
+That mismatch — far more connection objects retained than the pool's configured max — tells me connections are being borrowed and never returned, so they can't be garbage-collected. The fix is in code: find the path that opens a connection without closing it, usually a missing try-with-resources or a finally block that never runs."
+
+
+The skeleton to memorize (works for ANY memory leak)
+
+Capture — "heap dump via jmap -dump, copied off the pod with oc cp." (Naming the capture method = you've actually done it.)
+Tool — "Eclipse MAT, Leak Suspects report + dominator tree." (One tool, used correctly, beats listing five.)
+The finding — "thousands of one object type, retained, far exceeding the configured max." (This is the aha. One specific, concrete observation.)
+The inference — "more objects than the pool max = connections borrowed and never returned = can't be GC'd."
+The fix — "missing try-with-resources / finally; close the connection on every path."
+
+
+
 ######################################################################################################
 
 What REST API versioning and integration strategies have you implemented in your projects?
