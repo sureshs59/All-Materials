@@ -1096,6 +1096,7 @@ Use when parent sends data to child.
 @Input() userName!: string;
 <!-- parent.component.html -->
 <app-child [userName]="name"></app-child>
+
 2. Child to Parent — @Output()
 
 Use when child sends data back to parent.
@@ -1571,6 +1572,9 @@ Part 2 — How I executed the migration (60 seconds):
 You've been a Technical Lead across multiple roles. Tell me about a time a project was going off the rails — deadline at risk, team struggling, production issue — and walk me through specifically what you did to turn it around."
 
 
+844 838 3115 
+
+116993531
 
 The Action section is always 60% of a great STAR answer. You spent one sentence on it — "I figured out the root cause and given solution." That tells the interviewer nothing.
 
@@ -1811,8 +1815,15 @@ What's your experience with vulnerability scanning and secure coding practices?
 
 Let me give you a model answer — study this:
 "Spring Security Implementation:
-I use Spring Security in all my Spring Boot microservices. I create a SecurityConfiguration class with @Configuration annotation, then override the filterSecurityInterceptor method. I configure HTTP security to require authentication for protected endpoints, enable CSRF protection, and set up role-based access control (RBAC). For example, at CareFirst, I implemented Spring Security with OAuth2/OpenID Connect to integrate with Okta, our identity provider.
-OAuth2 vs JWT:
+I use Spring Security in all my Spring Boot microservices. 
+
+I create a SecurityConfiguration class with @Configuration annotation, then override the filterSecurityInterceptor method. 
+
+I configure HTTP security to require authentication for protected endpoints, enable CSRF protection, and set up role-based access control (RBAC). For example, at CareFirst, I implemented Spring Security with 
+
+OAuth2/OpenID Connect to integrate with Okta, our identity provider.
+
+OAuth2 vs JWT: 
 They serve different purposes. OAuth2 is an authorization protocol — it's used when you want users to log in with a third-party provider like Google or Okta. JWT is a token format — it's a stateless way to represent claims about a user. In practice, OAuth2 uses JWT tokens. At CareFirst, we used OAuth2 with Okta, which returned JWT tokens. We then used those JWT tokens to authenticate API requests.
 Real Example:
 When a user logs in, Okta (via OAuth2) returns a JWT token with user claims (ID, email, roles). The Angular frontend stores this JWT. For every API request, Angular includes the JWT in the Authorization header. Our Spring Boot API validates the JWT signature, checks expiration, and verifies the user's role before allowing access.
@@ -1872,14 +1883,54 @@ Example: At CareFirst, we used Oracle for member claims (relational: members →
 
 
 
+====================================================================
+Bitbucket is basically telling you to merge the target branch into your feature branch locally, resolve the conflicts in your editor, then push the feature branch back.
+
+Usual workflow
+Checkout your feature branch.
+
+Pull the latest target branch into it.
+
+Fix the conflicted files.
+
+Commit the resolved merge.
+
+Push your feature branch again.
+
+Example:
+
+bash
+git checkout feature-branch
+git pull origin QA
+
+===============================================================================
+
+If it’s only your feature branch and you want to remove the last commit completely, the usual command is:
+
+bash
+git reset --hard HEAD~1
+git push --force-with-lease
+This moves your branch back one commit and rewrites the remote branch to match.
+
+Safer option
+If you want to keep the file changes locally but just remove the commit, use:
+
+bash
+git reset --soft HEAD~1
 
 
 
 
+viewchild() and contentChild()
 
 
-Maynard, Jim
-Parthasarathy, Jaganath Rao
-Sure, Nagendra B.
-McDonnell, Robert C.
-Hussain, Sameer
+ViewChild is just like inheritance concept in Java
+optimistic locking and pessimistic locking
+
+Namaste Javascript
+
+namstedev.com
+
+
+
+
