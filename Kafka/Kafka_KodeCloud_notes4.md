@@ -74,3 +74,23 @@ Q; What is the retention policy in Kafka?
 
   A policy to determine how long messages are kept before being deleted.
   
+Q: Change the retention time for messages in the inventory-updates topic to 7 days.
+
+To set the retention.ms configuration to 7 days (604800000 milliseconds), use the below command:
+  /root/kafka/bin/kafka-configs.sh --alter --bootstrap-server localhost:9092 --entity-type topics --entity-name inventory-updates --add-config retention.ms=604800000
+        
+		  Completed updating config for topic inventory-updates.
+
+To verify the config changes, run the below command:
+   /root/kafka/bin/kafka-configs.sh --describe --bootstrap-server localhost:9092 --topic inventory-updates
+  
+  Dynamic configs for topic inventory-updates are:
+  retention.ms=604800000 sensitive=false synonyms={DYNAMIC_TOPIC_CONFIG:retention.ms=604800000}
+
+
+Q: Produce Messages to a Kafka Topic
+
+Use the Kafka Console Producer to send the message {"user": "Alice", "action": "login", "timestamp": "2024-09-30T10:00:00Z"} to the topic my-first-topic.
+
+
+NOTE: Kafka may take some time to reflect changes.
