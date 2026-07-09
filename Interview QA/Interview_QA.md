@@ -1741,9 +1741,12 @@ try {
 
 "When you run a Spring Boot application, here's what happens step by step:
 ===========================================================
-Step 1: Spring Boot looks for the @SpringBootApplication annotation on your main class. This annotation internally combines three annotations: @ComponentScan, @EnableAutoConfiguration, and @SpringBootConfiguration.
-Step 2: @ComponentScan scans the classpath for classes annotated with @Component, @Service, @Repository, or @Controller. For each class found, Spring creates a bean and stores it in the Application Context.
-Step 3: @EnableAutoConfiguration automatically configures Spring and third-party libraries based on what's on your classpath. For example, if you have spring-boot-starter-web in your pom.xml, Spring automatically configures Tomcat as the embedded server.
+Step 1: Spring Boot looks for the @SpringBootApplication annotation on your main class. This annotation internally combines three annotations:
+@ComponentScan, @EnableAutoConfiguration, and @SpringBootConfiguration.
+Step 2: @ComponentScan scans the classpath for classes annotated with @Component, @Service, @Repository, or @Controller. 
+For each class found, Spring creates a bean and stores it in the Application Context.
+Step 3: @EnableAutoConfiguration automatically configures Spring and third-party libraries based on what's on your classpath. 
+   For example, if you have spring-boot-starter-web in your pom.xml, Spring automatically configures Tomcat as the embedded server.
 Step 4: Spring injects dependencies into each bean using @Autowired. All beans are wired together automatically.
 Step 5: The embedded server (Tomcat, Jetty, or Undertow) starts on port 8080 by default.
 Result: Your application is production-ready in seconds. You don't write XML configuration files or manually start servers—Spring does it all automatically."
@@ -1752,7 +1755,9 @@ What is the @Component annotation, and how does it differ from @Service and @Rep
 =====================================================
 
 "@Component is a generic stereotype annotation. When you put @Component on a class, Spring creates a bean from that class and manages it.
-@Service is a specialized @Component used for business logic classes. It's the same as @Component technically, but it signals to developers: 'This class contains business logic.'
+
+@Service is a specialized @Component used for business logic classes. 
+It's the same as @Component technically, but it signals to developers: 'This class contains business logic.'
 @Repository is a specialized @Component used for data access classes. When you put @Repository on a class, Spring also translates database exceptions into Spring-specific exceptions, which is helpful.
 Relationship: @Service and @Repository are subtypes of @Component. They do everything @Component does, but with specific meanings.
 Example: If I have a UserService class with methods like 'validateUser' or 'calculateDiscount', I'd use @Service. If I have a UserRepository class that queries the database, I'd use @Repository. If I have a utility class, I'd use @Component.
