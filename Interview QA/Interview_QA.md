@@ -1741,23 +1741,67 @@ try {
 
 "When you run a Spring Boot application, here's what happens step by step:
 ===========================================================
-Step 1: Spring Boot looks for the @SpringBootApplication annotation on your main class. This annotation internally combines three annotations:
-@ComponentScan, @EnableAutoConfiguration, and @SpringBootConfiguration.
-Step 2: @ComponentScan scans the classpath for classes annotated with @Component, @Service, @Repository, or @Controller. 
-For each class found, Spring creates a bean and stores it in the Application Context.
-Step 3: @EnableAutoConfiguration automatically configures Spring and third-party libraries based on what's on your classpath. 
-   For example, if you have spring-boot-starter-web in your pom.xml, Spring automatically configures Tomcat as the embedded server.
+Step 1: Spring Boot looks for the @SpringBootApplication annotation on your main class. This annotation internally combines three annotations: @ComponentScan, @EnableAutoConfiguration, and @SpringBootConfiguration.
+Step 2: @ComponentScan scans the classpath for classes annotated with @Component, @Service, @Repository, or @Controller. For each class found, Spring creates a bean and stores it in the Application Context.
+Step 3: @EnableAutoConfiguration automatically configures Spring and third-party libraries based on what's on your classpath. For example, if you have spring-boot-starter-web in your pom.xml, Spring automatically configures Tomcat as the embedded server.
 Step 4: Spring injects dependencies into each bean using @Autowired. All beans are wired together automatically.
 Step 5: The embedded server (Tomcat, Jetty, or Undertow) starts on port 8080 by default.
 Result: Your application is production-ready in seconds. You don't write XML configuration files or manually start servers—Spring does it all automatically."
+
+
+================================================================
+SpringBoot Actuator
+############################################
+
+
+Spring Boot Actuator is a production-ready feature that lets you monitor, manage, and interact with your application using HTTP endpoints or JMX.
+It provides instant health checks, metrics, and application info without forcing you to write custom monitoring code.
+
+1. Step-by-Step ExampleStep 
+
+	1: Add the DependencyAdd this to your pom.xml (for Maven):xml
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-actuator</artifactId>
+	</dependency>
+	
+	Step 2: Configure EndpointsBy default, Spring Boot hides most endpoints for security. 
+				Expose them in your src/main/resources/application.properties file:
+				
+				properties# Expose all actuator endpoints via HTTP web access
+						management.endpoints.web.exposure.include=*
+						
+2. Crucial Endpoints to KnowOnce exposed, you can access these specific URLs to check your app's internal status:
+     /actuator/health
+     What it does: Shows if the application is running (UP) or down (DOWN).
+	 Pro-Tip: If you add management.endpoint.health.show-details=always to your properties, it will also show the health of your connected database and disk space.
+	 
+	 /actuator/metrics
+	 What it does: Shows a list of trackable metrics (like CPU usage, memory, and HTTP requests).
+	  Usage: Visit /actuator/metrics/jvm.memory.used 
+	  to see exactly how much memory your app is using right now.
+	 
+	 /actuator/env
+	 What it does: Displays all environment properties, system configurations, and application.properties keys.
+	 
+	 /actuator/loggers
+	 What it does: Allows you to view and dynamically change log levels (e.g., switching from INFO to DEBUG at runtime without restarting the server)
+	 
+3. Production Warning
+
+	Never expose all endpoints (*) to the public internet in a real production environment. 
+	Malicious users could use /actuator/env to steal your database passwords or use /actuator/shutdown to turn off your application. 
+	Always secure these endpoints using Spring Security.
+	Do you want to see how to secure these endpoints with Spring Security, or would you like to build a custom health indicator?	 
+================================================================
+
+
 
 What is the @Component annotation, and how does it differ from @Service and @Repository?"
 =====================================================
 
 "@Component is a generic stereotype annotation. When you put @Component on a class, Spring creates a bean from that class and manages it.
-
-@Service is a specialized @Component used for business logic classes. 
-It's the same as @Component technically, but it signals to developers: 'This class contains business logic.'
+@Service is a specialized @Component used for business logic classes. It's the same as @Component technically, but it signals to developers: 'This class contains business logic.'
 @Repository is a specialized @Component used for data access classes. When you put @Repository on a class, Spring also translates database exceptions into Spring-specific exceptions, which is helpful.
 Relationship: @Service and @Repository are subtypes of @Component. They do everything @Component does, but with specific meanings.
 Example: If I have a UserService class with methods like 'validateUser' or 'calculateDiscount', I'd use @Service. If I have a UserRepository class that queries the database, I'd use @Repository. If I have a utility class, I'd use @Component.
@@ -1905,8 +1949,18 @@ Push your feature branch again.
 Example:
 
 bash
-git checkout feature-branch
-git pull origin QA
+git checkout <your-feature-branch>
+git pull origin <target-branch>
+
+4. Locate and Resolve the ConflictsYour terminal will notify you which files failed to auto-merge.Open those specific files in your preferred code editor (like VS Code or IntelliJ).
+Look for the conflict markers:<<<<<<< HEAD (Your changes)======= (The divider)>>>>>>> <target-branch> (Incoming changes from Bitbucket)Edit the code to cleanly merge the logic, and delete all three line markers.
+
+5. Stage, Commit, and Push Back to BitbucketOnce the files are completely fixed and saved, tell Git the conflict is resolved by staging and committing the changes:
+bash
+
+git add <filename>
+git commit -m "Fix Bitbucket merge conflicts"
+git push origin <your-feature-branch>
 
 ===============================================================================
 
