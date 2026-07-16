@@ -1793,6 +1793,92 @@ It provides instant health checks, metrics, and application info without forcing
 	Malicious users could use /actuator/env to steal your database passwords or use /actuator/shutdown to turn off your application. 
 	Always secure these endpoints using Spring Security.
 	Do you want to see how to secure these endpoints with Spring Security, or would you like to build a custom health indicator?	 
+	
+	
+	"self": {
+      "href": "http://localhost:8088/actuator",
+      "templated": false
+    },
+    "beans": {
+      "href": "http://localhost:8088/actuator/beans",
+      "templated": false
+    },
+	"env": {
+      "href": "http://localhost:8088/actuator/env",
+      "templated": false
+    },
+    "env-toMatch": {
+      "href": "http://localhost:8088/actuator/env/{toMatch}",
+      "templated": true
+    },
+    "info": {
+      "href": "http://localhost:8088/actuator/info",
+      "templated": false
+    },
+    "loggers": {
+      "href": "http://localhost:8088/actuator/loggers",
+      "templated": false
+    },
+	 "metrics": {
+      "href": "http://localhost:8088/actuator/metrics",
+      "templated": false
+    }
+	"threaddump": {
+      "href": "http://localhost:8088/actuator/threaddump",
+      "templated": false
+    },
+	
+	http://localhost:8088/actuator/metrics/disk.free
+	
+	
+3. Production WarningNever expose all endpoints (*) to the public internet in a real production environment. 
+	Malicious users could use /actuator/env to steal your database passwords or use /actuator/shutdown to turn off your application. 
+	Always secure these endpoints using Spring Security.Do you want to see how to secure these endpoints with Spring Security, or 
+	would you like to build a custom health indicator?
+	
+	 Create Security Configuration
+	 Create a configuration class to lock down the endpoints:
+	 
+	    @Configuration
+		@EnableWebSecurity
+		public class SecurityConfig {
+
+			@Bean
+			public SecurityFilterChain filterChain(HttpSecurity httpSecurity)throws Exception {
+				
+				httpSecurity.csrf(Customizer.withDefaults()).authorizeHttpRequests(
+						auth -> 
+						 // Allow anyone to check the basic health end point
+						auth.requestMatchers("/actuator/health").permitAll()
+						// Protect all other actuator end points; require ADMIN role
+						.requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ADMIN")
+						.anyRequest().authenticated()
+						).httpBasic(Customizer.withDefaults());  // Use basic HTTP authentication
+				return httpSecurity.build();
+			}
+			
+			@Bean
+			public UserDetailsService userDetailsService(PasswordEncoder encoder) {
+				// Create an in-memory user with the ADMIN role for testing
+				UserDetails admin = User.builder()
+									.username("admin")
+									.password(encoder.encode("admin123"))
+									.roles("ADMIN")
+									.build();
+						
+				UserDetails user = User.builder()
+							.username("suresh")
+							.password(encoder.encode("admin123"))
+							.roles("USER")
+							.build();
+				return new InMemoryUserDetailsManager(admin, user);
+			}
+			
+			@Bean
+			public PasswordEncoder passwordEncoder() {
+				return new BCryptPasswordEncoder();
+			}
+		}
 ================================================================
 
 
