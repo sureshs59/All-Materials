@@ -8,6 +8,7 @@ A modern, production-grade Spring Boot microservices architecture designed for r
 
 Below is the simple visual flow showing client request routing, microservice isolation, dynamic secret injection, and shared cross-cutting concerns:
 
+<img width="1380" height="752" alt="MicroService-Architecture" src="https://github.com/user-attachments/assets/80114c4a-f729-4c56-a273-80074792a2bc" />
 
 ---
 
