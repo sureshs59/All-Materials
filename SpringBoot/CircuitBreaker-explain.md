@@ -8,7 +8,53 @@ This document provides a reference architecture and practical implementation gui
 
 The architecture below illustrates the complete request lifecycle, edge routing, Kubernetes deployment, secret management, and cross-cutting concerns.
 
-![Spring Boot Microservice Architecture](https://replicate.delivery/xpbkg/9o9Vj9S48e0Aey3r9IuR15l9k5s5u9p4H2n2F2F2F2F2F2F/output.png)
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/d3354950-53e0-4a7d-a825-7af8acb6961b" />
+
+Diagram Structure: The Lifecycle of a Request
+Imagine a linear flow from left to right, showing how a request is handled.
+
+Top Title: RESILIENCE4J CIRCUIT BREAKER: HOW IT WORKS
+
+### Main Elements:
+
+A large arrow labeled "CLIENT REQUEST" pointing into a central box.
+
+The Central Box is labeled: "Resilience4j Circuit Breaker".
+
+Two outgoing paths from the central box.
+
+Layout:
+
+State Transition Flowchart Inside the Central Box:
+You should show the state transitions with simple logic.
+
+### [ Start: CLOSED ] (Green Box)
+
+Arrows going out: "Backend Call" (Solid arrow)
+
+Arrow pointing back: "Failure Rate < Threshold"
+
+Text Label: "All requests pass. Monitoring: send() / onError()."
+
+A prominent arrow points from CLOSED to OPEN: "Failure Rate > Threshold" OR "Slow Call Rate > Threshold"
+
+### [ OPEN ] (Red Box)
+
+#### Arrow pointing down from it: "Requests FAILED FAST" (Solid arrow). Label: throws CallNotPermittedException
+
+#### Arrow going to a separate side box: "Trigger FALLBACK" (Cache, Default Data).
+
+#### A prominent arrow points from OPEN to HALF-OPEN after a time delay: "After WaitDurationInOpenState"
+
+### [ HALF-OPEN ] (Amber Box)
+
+#### Text Label: "Limited Test Requests Allowed."
+
+#### Arrows going out: "Backend Call" (Solid arrow).
+
+#### Arrow pointing from HALF-OPEN back to CLOSED: "Test Calls Succeed (Failure < Threshold)"
+
+#### Arrow pointing from HALF-OPEN back to OPEN: "Test Calls Fail (Failure > Threshold)"
 
 ### 🔄 Architecture Component Breakdown
 
@@ -79,3 +125,95 @@ An **Order Service** calls an external **Payment Service** to charge a customer 
         <artifactId>spring-boot-starter-aop</artifactId>
     </dependency>
 </dependencies>
+```
+---
+
+## 5. Resilience4j Configuration (application.yml)
+
+### `application.yml`
+```xml
+resilience4j:
+  circuitbreaker:
+    instances:
+      paymentServiceCB:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10                   # Evaluate error rate over the last 10 calls
+        minimumNumberOfCalls: 5                  # Must have at least 5 calls before evaluating
+        failureRateThreshold: 50                 # Trip to OPEN if 50% or more calls fail
+        slowCallDurationThreshold: 2s            # Calls taking longer than 2s count as slow
+        slowCallRateThreshold: 50               # Trip if 50% of calls are slow
+        waitDurationInOpenState: 10s            # Stay in OPEN for 10 seconds before HALF-OPEN
+        permittedNumberOfCallsInHalfOpenState: 3 # Allow 3 trial requests in HALF-OPEN
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+```
+---
+
+## 6. Service Layer with Circuit Breaker & Fallback (OrderService.java)
+### `OrderService.java`
+```Java
+
+package com.example.orderservice.service;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+public class OrderService {
+
+    private final RestTemplate restTemplate = new RestTemplate();
+    private static final String PAYMENT_SERVICE_URL = "http://localhost:8081/api/payment";
+
+    /**
+     * Executes remote payment call wrapped by Resilience4j Circuit Breaker.
+     * Name matches the instance defined in application.yml.
+     */
+    @CircuitBreaker(name = "paymentServiceCB", fallbackMethod = "processPaymentFallback")
+    public String processPayment(String orderId, double amount) {
+        // Calling remote Payment Service
+        return restTemplate.postForObject(
+            PAYMENT_SERVICE_URL + "/charge?orderId=" + orderId + "&amount=" + amount, 
+            null, 
+            String.class
+        );
+    }
+
+    /**
+     * Fallback Method executed when:
+     * 1. Remote service throws an Exception (e.g., 5xx, Timeout).
+     * 2. Circuit Breaker is in OPEN state (throws CallNotPermittedException).
+     */
+    public String processPaymentFallback(String orderId, double amount, Throwable throwable) {
+        System.err.println("Fallback triggered due to: " + throwable.getMessage());
+        return "ORDER_PENDING: Payment Service is currently unavailable. Your order " 
+                + orderId + " has been queued for processing.";
+    }
+}
+
+```
+---
+## 7. REST Controller 
+### `OrderController.java`
+```Java
+
+package com.example.orderservice.controller;
+
+import com.example.orderservice.service.OrderService;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/orders")
+public class OrderController {
+
+    private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @PostMapping("/checkout")
+    public String checkout(@RequestParam String orderId, @RequestParam double amount) {
+        return orderService.processPayment(orderId, amount);
+    }
+}
+```
