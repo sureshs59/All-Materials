@@ -1,0 +1,27 @@
+Spring OAuth Security.
+
+
+Spring-Oauth2-client dependency very important
+
+   --> it will give OAuth2LoginAuthenticationFilter
+
+ClinetRegistrationRepository will give error if user not provided any client id and secret to authentication server.
+Give below like this:
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: clientid
+            client-secret: clientsecret
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
